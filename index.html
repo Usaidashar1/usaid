@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>usaid.co.in | Coming Soon</title>
+    
+    <!-- Google Fonts for modern, premium typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;900&family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #030305;
+            --text-main: #ffffff;
+            --text-muted: #a1a1aa;
+            --accent-1: #4f46e5; /* Indigo */
+            --accent-2: #c026d3; /* Fuchsia */
+            --accent-3: #06b6d4; /* Cyan */
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body, html {
+            height: 100%;
+            width: 100%;
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow: hidden; /* Prevent scrollbar from background elements */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Canvas for Particle System */
+        #particle-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        /* Ambient Glowing Orbs */
+        .ambient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            z-index: 0;
+            animation: floatOrb 20s infinite ease-in-out alternate;
+            opacity: 0.5;
+        }
+
+        .orb-1 {
+            width: 40vw;
+            height: 40vw;
+            background: radial-gradient(circle, var(--accent-1), transparent 70%);
+            top: -10%;
+            left: -10%;
+        }
+
+        .orb-2 {
+            width: 35vw;
+            height: 35vw;
+            background: radial-gradient(circle, var(--accent-2), transparent 70%);
+            bottom: -10%;
+            right: -5%;
+            animation-delay: -5s;
+            animation-duration: 25s;
+        }
+
+        .orb-3 {
+            width: 30vw;
+            height: 30vw;
+            background: radial-gradient(circle, var(--accent-3), transparent 70%);
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: -10s;
+            opacity: 0.3;
+        }
+
+        @keyframes floatOrb {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(5%, 5%) scale(1.1); }
+            100% { transform: translate(-5%, -5%) scale(0.9); }
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 10;
+            padding: 3rem 4rem;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+            
+            /* Glassmorphism Effect */
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: var(--glass-shadow);
+            
+            /* Animations */
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation-delay: 0.2s;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* 3D Tilt Effect applied via JS */
+        .main-container:hover {
+            box-shadow: 0 15px 45px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        .domain-name {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.2rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            display: inline-block;
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards;
+            animation-delay: 0.5s;
+        }
+
+        .domain-name span {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .title {
+            font-size: 4.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            
+            /* Text Gradient */
+            background: linear-gradient(to right, #fff, var(--text-muted), #fff);
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: textShine 4s linear infinite, fadeInUp 1s ease forwards;
+            opacity: 0;
+            animation-delay: 0, 0.7s;
+        }
+
+        .description {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards;
+            animation-delay: 0.9s;
+            font-weight: 300;
+        }
+
+        .cta-wrapper {
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards;
+            animation-delay: 1.1s;
+        }
+
+        .btn {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            font-family: 'Space Grotesk', sans-serif;
+            letter-spacing: 1px;
+            cursor: pointer;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: all 0.6s ease;
+            z-index: 1;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50px;
+            padding: 2px;
+            background: linear-gradient(45deg, var(--accent-1), var(--accent-2), var(--accent-3));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 20px -10px var(--accent-1);
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover::after {
+            opacity: 1;
+        }
+
+        .btn-text {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-icon {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+            transition: transform 0.3s ease;
+        }
+
+        .btn:hover .btn-icon {
+            transform: translateX(4px) scale(1.1);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes textShine {
+            to {
+                background-position: 200% center;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 2.5rem 2rem;
+                width: 85%;
+            }
+            .title {
+                font-size: 3rem;
+            }
+            .domain-name {
+                font-size: 1rem;
+            }
+            .description {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-container {
+                padding: 2rem 1.5rem;
+                width: 92%;
+            }
+            .title {
+                font-size: 2.5rem;
+            }
+            .btn {
+                padding: 0.8rem 2rem;
+                font-size: 1rem;
+            }
+            .orb-1, .orb-2, .orb-3 {
+                width: 60vw;
+                height: 60vw;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient Background Lighting -->
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+    <div class="ambient-orb orb-3"></div>
+
+    <!-- Particle System Canvas -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Main Content -->
+    <main class="main-container" id="glass-card">
+        <div class="domain-name">Welcome to <span>usaid.co.in</span></div>
+        <h1 class="title">Coming Soon</h1>
+        <p class="description">
+            We are crafting something extraordinary. A new digital experience is currently in the works. 
+            <br><br>
+            For purchase inquiries or business opportunities, please reach out.
+        </p>
+        
+        <div class="cta-wrapper">
+            <a href="mailto:usaid.asher@gmail.com" class="btn">
+                <span class="btn-text">
+                    Contact Us
+                    <svg class="btn-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                    </svg>
+                </span>
+            </a>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- 1. Interactive 3D Card Tilt Effect ---
+            const card = document.getElementById('glass-card');
+            
+            document.addEventListener('mousemove', (e) => {
+                // Calculate mouse position relative to the center of the screen
+                const xAxis = (window.innerWidth / 2 - e.pageX) / 50;
+                const yAxis = (window.innerHeight / 2 - e.pageY) / 50;
+                
+                // Apply a subtle rotation
+                card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg) translateY(0px)`;
+            });
+
+            // Reset transform when mouse leaves window
+            document.addEventListener('mouseleave', () => {
+                card.style.transform = `rotateY(0deg) rotateX(0deg) translateY(0px)`;
+                card.style.transition = 'transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1)';
+            });
+            
+            // Remove transition when hovering for smooth real-time tracking
+            document.addEventListener('mouseenter', () => {
+                card.style.transition = 'none';
+            });
+
+            // --- 2. Particle Network System ---
+            const canvas = document.getElementById('particle-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            let particlesArray = [];
+            let particleCount = 70; // Adjust based on performance/looks
+            
+            // Responsive canvas sizing
+            function setCanvasSize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                // Adjust particle count for smaller screens
+                particleCount = window.innerWidth < 768 ? 40 : 80;
+                initParticles();
+            }
+
+            // Handle resize
+            window.addEventListener('resize', setCanvasSize);
+
+            // Mouse interaction for particles
+            let mouse = {
+                x: null,
+                y: null,
+                radius: 150 // Connection radius for mouse
+            }
+
+            window.addEventListener('mousemove', (event) => {
+                mouse.x = event.x;
+                mouse.y = event.y;
+            });
+
+            window.addEventListener('mouseout', () => {
+                mouse.x = null;
+                mouse.y = null;
+            });
+
+            // Particle Class
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.size = Math.random() * 2 + 0.5;
+                    this.speedX = Math.random() * 1 - 0.5;
+                    this.speedY = Math.random() * 1 - 0.5;
+                    // Randomize between purple, cyan, and white slightly
+                    const colors = ['rgba(79, 70, 229, 0.8)', 'rgba(192, 38, 211, 0.8)', 'rgba(6, 182, 212, 0.8)', 'rgba(255, 255, 255, 0.6)'];
+                    this.color = colors[Math.floor(Math.random() * colors.length)];
+                }
+
+                update() {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+
+                    // Bounce off edges
+                    if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+                    if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fillStyle = this.color;
+                    ctx.fill();
+                }
+            }
+
+            // Initialize Particles
+            function initParticles() {
+                particlesArray = [];
+                for (let i = 0; i < particleCount; i++) {
+                    particlesArray.push(new Particle());
+                }
+            }
+
+            // Animate Particles & Draw Connecting Lines
+            function animateParticles() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                for (let i = 0; i < particlesArray.length; i++) {
+                    particlesArray[i].update();
+                    particlesArray[i].draw();
+
+                    // Connect nearby particles
+                    for (let j = i; j < particlesArray.length; j++) {
+                        const dx = particlesArray[i].x - particlesArray[j].x;
+                        const dy = particlesArray[i].y - particlesArray[j].y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (distance < 120) {
+                            ctx.beginPath();
+                            ctx.strokeStyle = `rgba(255, 255, 255, ${0.1 - distance/1200})`; // Fade lines
+                            ctx.lineWidth = 0.5;
+                            ctx.moveTo(particlesArray[i].x, particlesArray[i].y);
+                            ctx.lineTo(particlesArray[j].x, particlesArray[j].y);
+                            ctx.stroke();
+                        }
+                    }
+
+                    // Connect particles to mouse
+                    if (mouse.x != null && mouse.y != null) {
+                        const dxMouse = particlesArray[i].x - mouse.x;
+                        const dyMouse = particlesArray[i].y - mouse.y;
+                        const distanceMouse = Math.sqrt(dxMouse * dxMouse + dyMouse * dyMouse);
+
+                        if (distanceMouse < mouse.radius) {
+                            ctx.beginPath();
+                            ctx.strokeStyle = `rgba(79, 70, 229, ${0.3 - distanceMouse/(mouse.radius*3)})`; // Indigo tint near mouse
+                            ctx.lineWidth = 1;
+                            ctx.moveTo(particlesArray[i].x, particlesArray[i].y);
+                            ctx.lineTo(mouse.x, mouse.y);
+                            ctx.stroke();
+                            
+                            // Slight magnetic effect towards mouse
+                            particlesArray[i].x -= dxMouse * 0.01;
+                            particlesArray[i].y -= dyMouse * 0.01;
+                        }
+                    }
+                }
+                requestAnimationFrame(animateParticles);
+            }
+
+            // Start Particle System
+            setCanvasSize();
+            animateParticles();
+        });
+    </script>
+</body>
+</html>
